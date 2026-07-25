@@ -1,17 +1,19 @@
-import express from "express";
+import bcrypt from "bcryptjs";
 import cors from "cors";
-import morgan from "morgan";
+import { randomUUID } from "crypto";
 import dotenv from "dotenv";
+import express from "express";
+import morgan from "morgan";
 
-import { initDB } from "./db.js";
-import authRoutes from "./routes/auth.js";
-import productsRoutes from "./routes/products.js";
-import clientsRoutes from "./routes/clients.js";
-import salesRoutes from "./routes/sales.js";
-import invoicesRoutes from "./routes/invoices.js";
-import expensesRoutes from "./routes/expenses.js";
-import paymentsRoutes from "./routes/payments.js";
+import { db, initDB } from "./db.js";
 import adminRoutes from "./routes/admin.js";
+import authRoutes from "./routes/auth.js";
+import clientsRoutes from "./routes/clients.js";
+import expensesRoutes from "./routes/expenses.js";
+import invoicesRoutes from "./routes/invoices.js";
+import paymentsRoutes from "./routes/payments.js";
+import productsRoutes from "./routes/products.js";
+import salesRoutes from "./routes/sales.js";
 
 dotenv.config();
 
@@ -54,7 +56,49 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: "Erreur interne du serveur." });
 });
 
+/**
+ * Crée automatiquement un compte administrateur au démarrage si les
+ * variables ADMIN_NAME / ADMIN_EMAIL / ADMIN_PASSWORD sont définies
+ * (utile sur les hébergeurs sans accès shell, comme le plan gratuit
+ * de Render : il suffit d'ajouter ces variables dans le tableau de
+ * bord Render puis de redéployer).
+ *
+ * Si un compte existe déjà avec cet email, il est simplement promu
+ * administrateur (sans écraser son mot de passe).
+ */
+async function seedAdminFromEnv() {
+  const { ADMIN_NAME, ADMIN_EMAIL, ADMIN_PASSWORD } = process.env;
+  if (!ADMIN_NAME || !ADMIN_EMAIL || !ADMIN_PASSWORD) return;
+
+  await db.read();
+  const existing = db.data.users.find((u) => u.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
+
+  if (existing) {
+    if (existing.role !== "admin") {
+      existing.role = "admin";
+      existing.active = true;
+      await db.write();
+      console.log(`✅ Compte "${ADMIN_EMAIL}" promu administrateur (amorçage au démarrage).`);
+    }
+    return;
+  }
+
+  const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, 10);
+  db.data.users.push({
+    id: randomUUID(),
+    businessName: ADMIN_NAME,
+    email: ADMIN_EMAIL,
+    passwordHash,
+    role: "admin",
+    active: true,
+    createdAt: new Date().toISOString(),
+  });
+  await db.write();
+  console.log(`✅ Compte administrateur "${ADMIN_EMAIL}" créé automatiquement au démarrage.`);
+}
+
 initDB()
+  .then(() => seedAdminFromEnv())
   .then(() => {
     app.listen(PORT, () => {
       console.log(`✅ BusinessOS Sénégal API démarrée sur http://localhost:${PORT}`);
