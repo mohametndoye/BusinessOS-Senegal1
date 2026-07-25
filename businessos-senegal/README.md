@@ -95,18 +95,37 @@ Chaque facture peut être téléchargée ou ouverte en PDF (bouton "Télécharge
 | Couche | Technologie |
 |---|---|
 | Frontend | React 19, Vite, Tailwind CSS, React Router, recharts, jsPDF, lucide-react |
-| Backend | Node.js, Express, lowdb (stockage JSON fichier, sans dépendance native) |
+| Backend | Node.js, Express, PostgreSQL en production (via `DATABASE_URL`) ou fichier JSON local en développement |
 | Auth | JWT (jsonwebtoken) + mots de passe hashés (bcryptjs) + rôles owner/admin |
 | Paiements | Wave Checkout API (direct), PayDunya (Orange Money / Free Money / Wizall) |
 
-`lowdb` a été choisi afin d'éviter toute compilation native (facilite le déploiement sur des serveurs low-cost, VPS africains ou Render/Railway). Pour la montée en charge, prévoir une migration vers PostgreSQL/MySQL.
+## Base de données persistante (important en production)
+
+**Sans `DATABASE_URL` définie**, l'API stocke ses données dans un fichier JSON local (`backend/data/db.json`) — pratique pour développer en local, mais **ce fichier est perdu à chaque redémarrage sur les hébergeurs à système de fichiers éphémère** (c'est le cas du plan gratuit de Render : le service redémarre après des périodes d'inactivité, et repart alors avec un fichier vide). C'est la cause si des entreprises créées "disparaissent" après un moment.
+
+**La solution : connecter une vraie base PostgreSQL**, gratuite et permanente, en quelques minutes :
+
+1. Créez un compte sur [neon.tech](https://neon.tech) (gratuit, sans carte bancaire, projet illimité dans le temps).
+2. Créez un projet, puis copiez la **chaîne de connexion** (`Connection string`, commence par `postgresql://...`).
+3. Sur Render, ouvrez votre service backend → **Environment**, ajoutez :
+
+   | Clé | Valeur |
+   |---|---|
+   | `DATABASE_URL` | la chaîne de connexion copiée depuis Neon |
+
+4. Sauvegardez — Render redéploie automatiquement. Dans les logs, vous devez maintenant voir :
+   ```
+   💾 Stockage : PostgreSQL (persistant — DATABASE_URL détectée)
+   ```
+
+À partir de ce moment, toutes les données (entreprises, produits, ventes, factures...) survivent aux redémarrages et redéploiements. Aucune autre modification n'est nécessaire : l'application détecte et bascule automatiquement sur Postgres dès que la variable est présente.
+
+*(D'autres fournisseurs Postgres gratuits fonctionnent aussi : Supabase, Aiven, ou la base Postgres de Render elle-même — n'importe quelle chaîne `postgresql://` standard convient.)*
 
 ## Déploiement
 
-- **Backend (Render, Railway, VPS...)** : définissez `JWT_SECRET` (valeur forte et unique), `CORS_ORIGIN` (URL exacte du frontend déployé), `FRONTEND_URL`/`BACKEND_URL`, et les clés Wave/PayDunya si vous les avez. Pensez à créer votre compte admin une fois déployé (`npm run create-admin`).
+- **Backend (Render, Railway, VPS...)** : définissez `JWT_SECRET` (valeur forte et unique), `CORS_ORIGIN` (URL exacte du frontend déployé), `FRONTEND_URL`/`BACKEND_URL`, `DATABASE_URL` (voir ci-dessus), et les clés Wave/PayDunya si vous les avez. Pensez à créer votre compte admin une fois déployé (`npm run create-admin`, ou variables `ADMIN_*` pour une création automatique au démarrage).
 - **Frontend (Vercel, Netlify...)** : `npm run build` génère un dossier `dist/` statique. Définissez `VITE_API_URL` vers l'URL de production de l'API.
-
-⚠️ **Stockage des données** : lowdb écrit dans `backend/data/db.json`. Sur les hébergeurs à système de fichiers éphémère (ex. Render sur le plan gratuit sans disque persistant), ce fichier peut être réinitialisé au redéploiement. Attachez un disque persistant à ce chemin, ou migrez vers une vraie base de données pour la production.
 
 ## Roadmap (vision long terme)
 
