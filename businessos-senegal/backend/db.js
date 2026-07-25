@@ -13,6 +13,7 @@ const defaultData = {
   sales: [],
   invoices: [],
   expenses: [],
+  payments: [],
 };
 
 const adapter = new JSONFile(file);

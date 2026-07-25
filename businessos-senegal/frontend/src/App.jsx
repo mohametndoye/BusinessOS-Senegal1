@@ -3,7 +3,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Analytics } from "@vercel/analytics/react";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 import Layout from "./components/Layout";
+import AdminLayout from "./components/AdminLayout";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -13,12 +15,25 @@ import Ventes from "./pages/Ventes";
 import Clients from "./pages/Clients";
 import Factures from "./pages/Factures";
 import Finances from "./pages/Finances";
+import Parametres from "./pages/Parametres";
+
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminBusinesses from "./pages/admin/AdminBusinesses";
+import AdminBusinessDetail from "./pages/admin/AdminBusinessDetail";
 
 function Protected({ children }) {
   return (
     <ProtectedRoute>
       <Layout>{children}</Layout>
     </ProtectedRoute>
+  );
+}
+
+function Admin({ children }) {
+  return (
+    <AdminRoute>
+      <AdminLayout>{children}</AdminLayout>
+    </AdminRoute>
   );
 }
 
@@ -36,6 +51,11 @@ export default function App() {
           <Route path="/clients" element={<Protected><Clients /></Protected>} />
           <Route path="/factures" element={<Protected><Factures /></Protected>} />
           <Route path="/finances" element={<Protected><Finances /></Protected>} />
+          <Route path="/parametres" element={<Protected><Parametres /></Protected>} />
+
+          <Route path="/admin" element={<Admin><AdminDashboard /></Admin>} />
+          <Route path="/admin/entreprises" element={<Admin><AdminBusinesses /></Admin>} />
+          <Route path="/admin/entreprises/:id" element={<Admin><AdminBusinessDetail /></Admin>} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

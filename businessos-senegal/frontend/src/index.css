@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Lato:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -9,7 +9,39 @@ html, body, #root {
 }
 
 body {
-  font-family: 'Work Sans', sans-serif;
-  background: #F6F0E2;
-  color: #201B16;
+  font-family: 'Lato', sans-serif;
+  background: #F5F6FA;
+  color: #1A1B26;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.font-mono {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.font-display {
+  letter-spacing: -0.015em;
+}
+
+/* Scrollbar plus discrète, cohérente avec l'identité visuelle */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #E4E6EF;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #C7CBDB;
+}
+
+/* Sélection de texte teintée */
+::selection {
+  background: rgba(67, 56, 202, 0.18);
 }

@@ -4,9 +4,13 @@
   "description": "API BusinessOS Sénégal - gestion des ventes, stocks, clients, factures et finances pour PME",
   "type": "module",
   "main": "server.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "create-admin": "node scripts/createAdmin.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

@@ -27,6 +27,10 @@ async function request(path, { method = "GET", body, auth = true } = {}) {
   }
 
   if (!res.ok) {
+    if (res.status === 401 && auth) {
+      localStorage.removeItem("bos_token");
+      localStorage.removeItem("bos_user");
+    }
     const message = (data && data.error) || "Une erreur est survenue.";
     const error = new Error(message);
     error.status = res.status;
@@ -40,6 +44,9 @@ export const api = {
   // auth
   register: (payload) => request("/auth/register", { method: "POST", body: payload, auth: false }),
   login: (payload) => request("/auth/login", { method: "POST", body: payload, auth: false }),
+  getMe: () => request("/auth/me"),
+  updateProfile: (payload) => request("/auth/me", { method: "PATCH", body: payload }),
+  changePassword: (payload) => request("/auth/me/password", { method: "PATCH", body: payload }),
 
   // products
   getProducts: () => request("/products"),
@@ -59,12 +66,25 @@ export const api = {
 
   // invoices
   getInvoices: () => request("/invoices"),
-  updateInvoiceStatus: (id, status) => request(`/invoices/${id}`, { method: "PATCH", body: { status } }),
+  getInvoice: (id) => request(`/invoices/${id}`),
+  updateInvoiceStatus: (id, status, paymentMethod) => request(`/invoices/${id}`, { method: "PATCH", body: { status, paymentMethod } }),
 
   // expenses
   getExpenses: () => request("/expenses"),
   createExpense: (payload) => request("/expenses", { method: "POST", body: payload }),
   deleteExpense: (id) => request(`/expenses/${id}`, { method: "DELETE" }),
+
+  // payments
+  getPaymentsConfig: () => request("/payments/config"),
+  createWaveCheckout: (invoiceId) => request("/payments/wave/checkout", { method: "POST", body: { invoiceId } }),
+  createOrangeCheckout: (invoiceId) => request("/payments/orange/checkout", { method: "POST", body: { invoiceId } }),
+  simulatePayment: (paymentId) => request(`/payments/simulate/${paymentId}`, { method: "POST" }),
+
+  // admin
+  getAdminOverview: () => request("/admin/overview"),
+  getAdminBusinesses: () => request("/admin/businesses"),
+  getAdminBusiness: (id) => request(`/admin/businesses/${id}`),
+  setBusinessStatus: (id, active) => request(`/admin/businesses/${id}/status`, { method: "PATCH", body: { active } }),
 };
 
 export { getToken };
