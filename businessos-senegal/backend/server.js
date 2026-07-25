@@ -10,6 +10,8 @@ import clientsRoutes from "./routes/clients.js";
 import salesRoutes from "./routes/sales.js";
 import invoicesRoutes from "./routes/invoices.js";
 import expensesRoutes from "./routes/expenses.js";
+import paymentsRoutes from "./routes/payments.js";
+import adminRoutes from "./routes/admin.js";
 
 dotenv.config();
 
@@ -17,7 +19,15 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 app.use(cors({ origin: process.env.CORS_ORIGIN || "*" }));
-app.use(express.json());
+
+// On capture le corps brut de la requête (req.rawBody) afin de pouvoir
+// vérifier les signatures des webhooks de paiement (Wave, PayDunya).
+app.use(express.json({
+  verify: (req, res, buf) => {
+    req.rawBody = buf.toString("utf8");
+  },
+}));
+app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
 app.get("/api/health", (req, res) => {
@@ -30,6 +40,8 @@ app.use("/api/clients", clientsRoutes);
 app.use("/api/sales", salesRoutes);
 app.use("/api/invoices", invoicesRoutes);
 app.use("/api/expenses", expensesRoutes);
+app.use("/api/payments", paymentsRoutes);
+app.use("/api/admin", adminRoutes);
 
 // gestion des routes inconnues
 app.use((req, res) => {

@@ -1,12 +1,24 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import { api } from "../api";
-import { Card, PageHeader, Button, Field, Input, Modal, Empty, Toast, fmtFCFA } from "../components/ui";
+import { Card, PageHeader, Button, Field, Input, Select, Modal, Empty, Toast, fmtFCFA } from "../components/ui";
 import { useToast } from "../hooks/useToast";
+
+const SUGGESTED_CATEGORIES = [
+  "Alimentation",
+  "Boissons",
+  "Hygiène & Beauté",
+  "Textile & Habillement",
+  "Électronique",
+  "Quincaillerie",
+  "Cosmétiques",
+  "Divers",
+];
 
 export default function Produits() {
   const [products, setProducts] = useState([]);
   const [query, setQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("Toutes");
   const [modal, setModal] = useState(null);
   const [loading, setLoading] = useState(true);
   const { toast, notify } = useToast();
@@ -19,9 +31,16 @@ export default function Produits() {
 
   useEffect(() => { load(); }, []);
 
-  const filtered = products.filter(
-    (p) => p.name.toLowerCase().includes(query.toLowerCase()) || (p.category || "").toLowerCase().includes(query.toLowerCase())
-  );
+  const knownCategories = useMemo(() => {
+    const fromProducts = products.map((p) => p.category).filter(Boolean);
+    return Array.from(new Set([...SUGGESTED_CATEGORIES, ...fromProducts])).sort();
+  }, [products]);
+
+  const filtered = products.filter((p) => {
+    const matchesQuery = p.name.toLowerCase().includes(query.toLowerCase()) || (p.category || "").toLowerCase().includes(query.toLowerCase());
+    const matchesCategory = categoryFilter === "Toutes" || p.category === categoryFilter;
+    return matchesQuery && matchesCategory;
+  });
 
   const openNew = () => setModal({ mode: "new", data: { name: "", category: "", price: "", cost: "", stock: "", threshold: "5" } });
   const openEdit = (p) => setModal({ mode: "edit", data: { ...p } });
@@ -61,16 +80,23 @@ export default function Produits() {
         action={<Button variant="accent" onClick={openNew}><Plus size={15} /> Ajouter un produit</Button>}
       />
 
-      <div className="mb-4 flex items-center gap-2 max-w-sm">
-        <div className="relative w-full">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8A8171]" />
-          <Input placeholder="Rechercher un produit ou une catégorie…" value={query} onChange={(e) => setQuery(e.target.value)} className="pl-8" />
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <div className="relative w-full max-w-sm">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280]" />
+          <Input placeholder="Rechercher un produit…" value={query} onChange={(e) => setQuery(e.target.value)} className="pl-8" />
         </div>
+
+        <Select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="w-full max-w-[220px]">
+          <option value="Toutes">Toutes les catégories</option>
+          {knownCategories.map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </Select>
       </div>
 
       <Card className="overflow-hidden">
         {loading ? (
-          <p className="p-5 text-[13px] text-[#8A8171]">Chargement…</p>
+          <p className="p-5 text-[13px] text-[#6B7280]">Chargement…</p>
         ) : filtered.length === 0 ? (
           <Empty text="Aucun produit trouvé." />
         ) : (
@@ -79,7 +105,7 @@ export default function Produits() {
               <thead>
                 <tr className="bg-sand">
                   {["Produit", "Catégorie", "Prix vente", "Stock", "Seuil", ""].map((h) => (
-                    <th key={h} className="text-left px-4 py-2.5 font-semibold text-[11px] tracking-wide uppercase text-[#8A8171]">{h}</th>
+                    <th key={h} className="text-left px-4 py-2.5 font-semibold text-[11px] tracking-wide uppercase text-[#6B7280]">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -89,17 +115,21 @@ export default function Produits() {
                   return (
                     <tr key={p.id} className="border-t border-line">
                       <td className="px-4 py-3 font-medium text-charcoal">{p.name}</td>
-                      <td className="px-4 py-3 text-[#8A8171]">{p.category || "—"}</td>
+                      <td className="px-4 py-3 text-[#6B7280]">
+                        {p.category ? (
+                          <span className="px-2 py-0.5 rounded-full text-[11.5px] font-medium bg-ink/5 text-ink">{p.category}</span>
+                        ) : "—"}
+                      </td>
                       <td className="px-4 py-3 font-mono">{fmtFCFA(p.price)}</td>
                       <td className="px-4 py-3">
                         <span className={`px-2 py-0.5 rounded-full text-[12px] font-semibold ${low ? "bg-baobab/10 text-baobab" : "bg-teal/10 text-teal"}`}>
                           {p.stock}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-[#8A8171]">{p.threshold}</td>
+                      <td className="px-4 py-3 text-[#6B7280]">{p.threshold}</td>
                       <td className="px-4 py-3 text-right">
                         <button onClick={() => openEdit(p)} className="p-1.5 rounded-md hover:opacity-60 mr-1"><Pencil size={14} /></button>
-                        <button onClick={() => remove(p.id)} className="p-1.5 rounded-md hover:opacity-60"><Trash2 size={14} color="#B5482F" /></button>
+                        <button onClick={() => remove(p.id)} className="p-1.5 rounded-md hover:opacity-60"><Trash2 size={14} color="#DC2626" /></button>
                       </td>
                     </tr>
                   );
@@ -112,7 +142,7 @@ export default function Produits() {
 
       {modal && (
         <Modal title={modal.mode === "new" ? "Nouveau produit" : "Modifier le produit"} onClose={() => setModal(null)}>
-          <ProductForm data={modal.data} onSave={save} onCancel={() => setModal(null)} />
+          <ProductForm data={modal.data} categories={knownCategories} onSave={save} onCancel={() => setModal(null)} />
         </Modal>
       )}
 
@@ -121,13 +151,52 @@ export default function Produits() {
   );
 }
 
-function ProductForm({ data, onSave, onCancel }) {
+function ProductForm({ data, categories, onSave, onCancel }) {
   const [form, setForm] = useState(data);
+  const isCustomInitially = data.category && !categories.includes(data.category);
+  const [customCategory, setCustomCategory] = useState(isCustomInitially);
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+
+  const handleCategorySelect = (value) => {
+    if (value === "__custom__") {
+      setCustomCategory(true);
+      set("category", "");
+    } else {
+      setCustomCategory(false);
+      set("category", value);
+    }
+  };
+
   return (
     <div className="space-y-3.5">
       <Field label="Nom du produit"><Input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Ex: Riz brisé 25kg" /></Field>
-      <Field label="Catégorie"><Input value={form.category} onChange={(e) => set("category", e.target.value)} placeholder="Ex: Alimentation" /></Field>
+
+      <Field label="Catégorie">
+        {customCategory ? (
+          <div className="flex gap-2">
+            <Input
+              autoFocus
+              value={form.category}
+              onChange={(e) => set("category", e.target.value)}
+              placeholder="Nom de la nouvelle catégorie"
+            />
+            {categories.length > 0 && (
+              <Button variant="ghost" onClick={() => { setCustomCategory(false); set("category", categories[0]); }}>
+                Liste
+              </Button>
+            )}
+          </div>
+        ) : (
+          <Select value={form.category || ""} onChange={(e) => handleCategorySelect(e.target.value)}>
+            <option value="" disabled>Sélectionner une catégorie…</option>
+            {categories.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+            <option value="__custom__">+ Nouvelle catégorie…</option>
+          </Select>
+        )}
+      </Field>
+
       <div className="grid grid-cols-2 gap-3">
         <Field label="Prix de vente (FCFA)"><Input type="number" value={form.price} onChange={(e) => set("price", e.target.value)} /></Field>
         <Field label="Coût d'achat (FCFA)"><Input type="number" value={form.cost} onChange={(e) => set("cost", e.target.value)} /></Field>

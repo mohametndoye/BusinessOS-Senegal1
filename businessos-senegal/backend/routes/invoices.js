@@ -21,9 +21,9 @@ router.get("/:id", async (req, res) => {
   res.json({ ...invoice, sale });
 });
 
-// PATCH /api/invoices/:id  body: { status: "payée" | "impayée" }
+// PATCH /api/invoices/:id  body: { status: "payée" | "impayée", paymentMethod?: string }
 router.patch("/:id", async (req, res) => {
-  const { status } = req.body || {};
+  const { status, paymentMethod } = req.body || {};
   if (!["payée", "impayée"].includes(status)) {
     return res.status(400).json({ error: "Statut invalide." });
   }
@@ -33,6 +33,13 @@ router.patch("/:id", async (req, res) => {
   if (idx === -1) return res.status(404).json({ error: "Facture introuvable." });
 
   db.data.invoices[idx].status = status;
+  if (status === "payée") {
+    db.data.invoices[idx].paymentMethod = paymentMethod || db.data.invoices[idx].paymentMethod || "espèces";
+    db.data.invoices[idx].paidAt = new Date().toISOString();
+  } else {
+    db.data.invoices[idx].paymentMethod = null;
+    db.data.invoices[idx].paidAt = null;
+  }
   await db.write();
   res.json(db.data.invoices[idx]);
 });

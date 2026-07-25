@@ -68,6 +68,7 @@ router.post("/", async (req, res) => {
   db.data.sales.push(sale);
 
   const invoiceCount = db.data.invoices.filter((i) => i.ownerId === req.user.id).length;
+  const now = new Date().toISOString();
   const invoice = {
     id: randomUUID(),
     ownerId: req.user.id,
@@ -76,7 +77,9 @@ router.post("/", async (req, res) => {
     clientId: clientId || null,
     total,
     status: paidNow ? "payée" : "impayée",
-    date: new Date().toISOString(),
+    paymentMethod: paidNow ? "espèces" : null,
+    paidAt: paidNow ? now : null,
+    date: now,
   };
   db.data.invoices.push(invoice);
 

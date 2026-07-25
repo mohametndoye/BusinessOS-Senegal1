@@ -51,15 +51,15 @@ export default function Finances() {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-6">
         <Card className="p-4">
-          <div className="flex items-center gap-2 mb-2"><TrendingUp size={15} color="#0E7C7B" /><span className="text-[12px] font-semibold text-[#8A8171]">Revenus encaissés</span></div>
+          <div className="flex items-center gap-2 mb-2"><TrendingUp size={15} color="#0F9D74" /><span className="text-[12px] font-semibold text-[#6B7280]">Revenus encaissés</span></div>
           <div className="font-mono text-[20px] font-semibold text-teal">{fmtFCFA(revenue)}</div>
         </Card>
         <Card className="p-4">
-          <div className="flex items-center gap-2 mb-2"><TrendingDown size={15} color="#B5482F" /><span className="text-[12px] font-semibold text-[#8A8171]">Dépenses</span></div>
+          <div className="flex items-center gap-2 mb-2"><TrendingDown size={15} color="#DC2626" /><span className="text-[12px] font-semibold text-[#6B7280]">Dépenses</span></div>
           <div className="font-mono text-[20px] font-semibold text-baobab">{fmtFCFA(totalExpenses)}</div>
         </Card>
         <Card className="p-4">
-          <div className="flex items-center gap-2 mb-2"><Wallet size={15} color="#16213A" /><span className="text-[12px] font-semibold text-[#8A8171]">Bénéfice net</span></div>
+          <div className="flex items-center gap-2 mb-2"><Wallet size={15} color="#12131C" /><span className="text-[12px] font-semibold text-[#6B7280]">Bénéfice net</span></div>
           <div className="font-mono text-[20px] font-semibold text-ink">{fmtFCFA(profit)}</div>
         </Card>
       </div>
@@ -69,7 +69,7 @@ export default function Finances() {
           <h3 className="text-[14px] font-semibold text-ink">Dépenses enregistrées</h3>
         </div>
         {loading ? (
-          <p className="p-5 text-[13px] text-[#8A8171]">Chargement…</p>
+          <p className="p-5 text-[13px] text-[#6B7280]">Chargement…</p>
         ) : expenses.length === 0 ? (
           <Empty text="Aucune dépense enregistrée." />
         ) : (
@@ -78,11 +78,11 @@ export default function Finances() {
               <div key={e.id} className="flex items-center justify-between px-4 py-3">
                 <div>
                   <div className="text-[13px] font-medium text-charcoal">{e.label}</div>
-                  <div className="text-[11.5px] text-[#8A8171]">{e.category} · {fmtDate(e.date)}</div>
+                  <div className="text-[11.5px] text-[#6B7280]">{e.category} · {fmtDate(e.date)}</div>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="font-mono text-[13px] font-semibold text-baobab">-{fmtFCFA(e.amount)}</span>
-                  <button onClick={() => removeExpense(e.id)} className="p-1 rounded-md hover:opacity-60"><Trash2 size={13} color="#8A8171" /></button>
+                  <button onClick={() => removeExpense(e.id)} className="p-1 rounded-md hover:opacity-60"><Trash2 size={13} color="#6B7280" /></button>
                 </div>
               </div>
             ))}

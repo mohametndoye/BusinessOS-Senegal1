@@ -48,7 +48,7 @@ export default function Ventes() {
 
       <Card className="overflow-hidden">
         {loading ? (
-          <p className="p-5 text-[13px] text-[#8A8171]">Chargement…</p>
+          <p className="p-5 text-[13px] text-[#6B7280]">Chargement…</p>
         ) : sales.length === 0 ? (
           <Empty text="Aucune vente pour le moment. Enregistrez votre première vente." />
         ) : (
@@ -57,7 +57,7 @@ export default function Ventes() {
               <thead>
                 <tr className="bg-sand">
                   {["Date", "Client", "Articles", "Total"].map((h) => (
-                    <th key={h} className="text-left px-4 py-2.5 font-semibold text-[11px] tracking-wide uppercase text-[#8A8171]">{h}</th>
+                    <th key={h} className="text-left px-4 py-2.5 font-semibold text-[11px] tracking-wide uppercase text-[#6B7280]">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -66,9 +66,9 @@ export default function Ventes() {
                   const client = clients.find((c) => c.id === s.clientId);
                   return (
                     <tr key={s.id} className="border-t border-line">
-                      <td className="px-4 py-3 text-[#8A8171]">{fmtDate(s.date)}</td>
+                      <td className="px-4 py-3 text-[#6B7280]">{fmtDate(s.date)}</td>
                       <td className="px-4 py-3 font-medium">{client ? client.name : "Client de passage"}</td>
-                      <td className="px-4 py-3 text-[#8A8171]">{s.items.map((it) => it.name).join(", ")}</td>
+                      <td className="px-4 py-3 text-[#6B7280]">{s.items.map((it) => it.name).join(", ")}</td>
                       <td className="px-4 py-3 font-semibold font-mono">{fmtFCFA(s.total)}</td>
                     </tr>
                   );
@@ -134,12 +134,12 @@ function SaleForm({ products, clients, onSave, onCancel }) {
                   ))}
                 </Select>
                 <Input type="number" min="1" max={prod ? prod.stock : undefined} value={row.qty} onChange={(e) => updateRow(i, { qty: e.target.value })} className="w-[72px]" />
-                <button onClick={() => removeRow(i)} className="p-1.5 rounded-md hover:opacity-60 shrink-0"><Trash2 size={14} color="#B5482F" /></button>
+                <button onClick={() => removeRow(i)} className="p-1.5 rounded-md hover:opacity-60 shrink-0"><Trash2 size={14} color="#DC2626" /></button>
               </div>
             );
           })}
         </div>
-        <button onClick={addRow} className="mt-2 text-[12.5px] font-semibold flex items-center gap-1 text-baobab">
+        <button onClick={addRow} className="mt-2 text-[12.5px] font-semibold flex items-center gap-1 text-brand">
           <Plus size={13} /> Ajouter un article
         </button>
       </div>
@@ -151,7 +151,7 @@ function SaleForm({ products, clients, onSave, onCancel }) {
 
       <div className="flex items-center justify-between pt-3 border-t border-line">
         <div>
-          <div className="text-[11px] uppercase tracking-wide text-[#8A8171]">Total</div>
+          <div className="text-[11px] uppercase tracking-wide text-[#6B7280]">Total</div>
           <div className="font-mono text-[20px] font-semibold text-ink">{fmtFCFA(total)}</div>
         </div>
         <div className="flex gap-2">

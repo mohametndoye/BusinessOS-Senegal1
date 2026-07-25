@@ -55,7 +55,7 @@ export default function Clients() {
       <PageHeader eyebrow="Répertoire" title="Clients" action={<Button variant="accent" onClick={openNew}><Plus size={15} /> Ajouter un client</Button>} />
 
       {loading ? (
-        <p className="text-[13px] text-[#8A8171]">Chargement…</p>
+        <p className="text-[13px] text-[#6B7280]">Chargement…</p>
       ) : clients.length === 0 ? (
         <Card><Empty text="Aucun client enregistré." /></Card>
       ) : (
@@ -70,14 +70,14 @@ export default function Clients() {
                   </div>
                   <div className="flex gap-1">
                     <button onClick={() => openEdit(c)} className="p-1.5 rounded-md hover:opacity-60"><Pencil size={13} /></button>
-                    <button onClick={() => remove(c.id)} className="p-1.5 rounded-md hover:opacity-60"><Trash2 size={13} color="#B5482F" /></button>
+                    <button onClick={() => remove(c.id)} className="p-1.5 rounded-md hover:opacity-60"><Trash2 size={13} color="#DC2626" /></button>
                   </div>
                 </div>
                 <div className="font-semibold text-[14px] text-ink">{c.name}</div>
-                <div className="text-[12px] mt-0.5 text-[#8A8171]">{c.phone}</div>
-                <div className="text-[12px] text-[#8A8171]">{c.address}</div>
+                <div className="text-[12px] mt-0.5 text-[#6B7280]">{c.phone}</div>
+                <div className="text-[12px] text-[#6B7280]">{c.address}</div>
                 <div className="mt-3 pt-3 border-t border-line flex items-center justify-between">
-                  <span className="text-[11px] uppercase tracking-wide text-[#8A8171]">Total achats</span>
+                  <span className="text-[11px] uppercase tracking-wide text-[#6B7280]">Total achats</span>
                   <span className="font-mono text-[13px] font-semibold text-teal">{fmtFCFA(total)}</span>
                 </div>
               </Card>
